@@ -8,7 +8,30 @@ const DB_PATH = path.join(__dirname, 'employees.db');
 
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
-app.use('/node_modules', express.static(path.join(__dirname, 'node_modules')));
+
+const requestLog = new Map();
+const WINDOW_MS = 60 * 1000;
+const MAX_REQUESTS_PER_WINDOW = 120;
+
+app.use((req, res, next) => {
+  const ip = req.ip || req.socket.remoteAddress || 'unknown';
+  const now = Date.now();
+  const entry = requestLog.get(ip);
+
+  if (!entry || now - entry.start > WINDOW_MS) {
+    requestLog.set(ip, { start: now, count: 1 });
+    next();
+    return;
+  }
+
+  if (entry.count >= MAX_REQUESTS_PER_WINDOW) {
+    res.status(429).json({ error: 'Too many requests, please try again later' });
+    return;
+  }
+
+  entry.count += 1;
+  next();
+});
 
 const db = new sqlite3.Database(DB_PATH);
 
@@ -69,8 +92,13 @@ function validateEmployeeInput(body) {
     }
   }
 
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  if (!emailRegex.test(body.email)) {
+  const normalizedEmail = String(body.email).trim();
+  const emailParts = normalizedEmail.split('@');
+  const localPart = emailParts[0];
+  const domainPart = emailParts[1];
+  const hasValidDomain = domainPart && domainPart.includes('.') && !domainPart.startsWith('.') && !domainPart.endsWith('.');
+
+  if (emailParts.length !== 2 || !localPart || !hasValidDomain) {
     return 'email must be valid';
   }
 
@@ -239,6 +267,7 @@ app.use((error, req, res, next) => {
     return;
   }
 
+  console.error(error);
   res.status(500).json({ error: 'Internal server error' });
 });
 

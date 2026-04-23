@@ -1,4 +1,4 @@
-const { useEffect, useMemo, useState } = React;
+const { useCallback, useEffect, useMemo, useState } = React;
 
 const initialForm = {
   name: '',
@@ -22,7 +22,7 @@ function App() {
     return values.sort();
   }, [employees]);
 
-  async function fetchEmployees() {
+  const fetchEmployees = useCallback(async () => {
     setLoading(true);
     setError('');
     try {
@@ -41,11 +41,11 @@ function App() {
     } finally {
       setLoading(false);
     }
-  }
+  }, [search, department]);
 
   useEffect(() => {
     fetchEmployees();
-  }, [search, department]);
+  }, [fetchEmployees]);
 
   function handleChange(event) {
     const { name, value } = event.target;
