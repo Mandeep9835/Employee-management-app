@@ -1,0 +1,29 @@
+{
+  "name": "employee-management-app",
+  "version": "1.0.0",
+  "description": "An enterprise employee management system with CRUD operations",
+  "main": "server.js",
+  "scripts": {
+    "test": "node --test",
+    "start": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Mandeep9835/Employee-management-app.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/Mandeep9835/Employee-management-app/issues"
+  },
+  "homepage": "https://github.com/Mandeep9835/Employee-management-app#readme",
+  "dependencies": {
+    "@babel/standalone": "^7.29.2",
+    "express": "^5.2.1",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "sqlite3": "^6.0.1"
+  }
+}
